@@ -1,26 +1,56 @@
-
 const { test, expect } = require('@playwright/test');
 
 const url = 'https://rahulshettyacademy.com/client/#/auth/login';
 
 // TEST 1: Register using the link (Expected FAIL)
-test('Register link should create an account', async ({ page }) => {
+test.only('Register link should create an account', async ({ page }) => {
     await page.goto(url);
     await expect(page).toHaveTitle("Let's Shop");
 
-    await page.locator('.login-wrapper-footer-text a').click();
+    const registerLink = page.locator('.login-wrapper-footer-text a');
+    await registerLink.highlight();
+    await registerLink.click();
 
-    await page.locator('#firstName').fill('Muhammad');
-    await page.locator('#lastName').fill('Qasim');
-    await page.locator('#userEmail').fill(`qasimlink${Date.now()}@gmail.com`);
-    await page.locator('#userMobile').fill('1234567890');
-    await page.locator('[formcontrolname="occupation"]').selectOption('Engineer');
-    await page.locator('[formcontrolname="gender"]').nth(0).click();
-    await page.locator('#userPassword').fill('Test@123');
-    await page.locator('#confirmPassword').fill('Test@123');
-    await page.locator('[formcontrolname="required"]').click();
+    const firstName = page.locator('#firstName');
+    await firstName.highlight();
+    await firstName.fill('Muhammad');
 
-    await page.locator('a[routerlink="/auth/register"]').click();
+    const lastName = page.locator('#lastName');
+    await lastName.highlight();
+    await lastName.fill('Qasim');
+
+    const email = page.locator('#userEmail');
+    await email.highlight();
+    await email.fill(`qasimlink${Date.now()}@gmail.com`);
+
+    const mobile = page.locator('#userMobile');
+    await mobile.highlight();
+    await mobile.fill('1234567890');
+
+    const occupation = page.locator('[formcontrolname="occupation"]');
+    await occupation.highlight();
+    await occupation.selectOption('Engineer');
+
+    const gender = page.locator('[formcontrolname="gender"]').nth(0);
+    await gender.highlight();
+    await gender.click();
+
+    const password = page.locator('#userPassword');
+    await password.highlight();
+    await password.fill('Test@123');
+
+    const confirmPassword = page.locator('#confirmPassword');
+    await confirmPassword.highlight();
+    await confirmPassword.fill('Test@123');
+
+    const terms = page.locator('[formcontrolname="required"]');
+    await terms.highlight();
+    await terms.click();
+
+    const registerButton = page.locator('a[routerlink="/auth/register"]');
+    await registerButton.highlight();
+await page.waitForTimeout(4000); // Keep highlight visible for 4 seconds
+    await registerButton.click();
 
     // Hover card validation
     const cards = page.locator('.card');
@@ -28,24 +58,31 @@ test('Register link should create an account', async ({ page }) => {
 
     for (let i = 1; i < await cards.count() - 1; i++) {
         const card = cards.nth(i);
+        await card.highlight();
         await card.hover();
         await expect(card).toHaveCSS('background-color', 'rgb(150, 22, 31)');
     }
 
-    // Expected: Account should be created
-    await expect(page.getByText('Account Created Successfully')).toBeVisible();
+    const successMessage = page.getByText('Account Created Successfully');
+    await successMessage.highlight();
+    await expect(successMessage).toBeVisible();
 });
 
 
 // TEST 2: Email link validation (Expected FAIL)
 test('Email link should use the correct mailto protocol', async ({ page }) => {
     await page.goto(url);
-    await page.locator('.login-wrapper-footer-text a').click();
+
+    const registerLink = page.locator('.login-wrapper-footer-text a');
+    await registerLink.highlight();
+    await registerLink.click();
 
     const emailLink = page.locator('a[href*="dummywebsite@rahulshettyacademy.com"]');
 
+    await emailLink.highlight();
     await expect(emailLink).toBeVisible();
     await expect(emailLink).toContainText('dummywebsite@rahulshettyacademy.com');
+
     await expect(emailLink).toHaveAttribute(
         'href',
         'mailto:dummywebsite@rahulshettyacademy.com'
@@ -62,103 +99,165 @@ test('Social media links should have valid URLs', async ({ page }) => {
     const twitter = page.locator('a:has(i.fa-twitter)');
     const youtube = page.locator('a:has(i.fa-youtube)');
 
-    await expect(facebook).toHaveAttribute('href', /^https?:\/\/.+/);
-    await expect(instagram).toHaveAttribute('href', /^https?:\/\/.+/);
-    await expect(twitter).toHaveAttribute('href', /^https?:\/\/.+/);
-    await expect(youtube).toHaveAttribute('href', /^https?:\/\/.+/);
+    const socialLinks = [facebook, instagram, twitter, youtube];
+
+    for (const link of socialLinks) {
+        await link.highlight();
+        await expect(link).toHaveAttribute('href', /^https?:\/\/.+/);
+    }
 });
 
 
 // TEST 4: Register using the submit button (Expected PASS)
-
 test('Register button should create an account', async ({ page }) => {
     await page.goto(url);
     await expect(page).toHaveTitle("Let's Shop");
 
     // Registration
-    await page.locator('.login-wrapper-footer-text a').click();
+    const registerLink = page.locator('.login-wrapper-footer-text a');
+    await registerLink.highlight();
+    await registerLink.click();
 
-    await page.locator('#firstName').fill('Muhammad');
-    await page.locator('#lastName').fill('Qasim');
+    const firstName = page.locator('#firstName');
+    await firstName.highlight();
+    await firstName.fill('Muhammad');
+
+    const lastName = page.locator('#lastName');
+    await lastName.highlight();
+    await lastName.fill('Qasim');
 
     const uniqueEmail = `qasimbutton${Date.now()}@gmail.com`;
     const password = 'Test@123';
 
-    await page.locator('#userEmail').fill(uniqueEmail);
-    await page.locator('#userMobile').fill('1234567890');
-    await page.locator('[formcontrolname="occupation"]').selectOption('Engineer');
-    await page.locator('[formcontrolname="gender"]').nth(0).click();
-    await page.locator('#userPassword').fill(password);
-    await page.locator('#confirmPassword').fill(password);
-    await page.locator('[formcontrolname="required"]').click();
+    const email = page.locator('#userEmail');
+    await email.highlight();
+    await email.fill(uniqueEmail);
 
-    await page.locator('input[type="submit"][value="Register"]').click();
+    const mobile = page.locator('#userMobile');
+    await mobile.highlight();
+    await mobile.fill('1234567890');
 
-    await expect(page.getByText('Account Created Successfully')).toBeVisible();
+    const occupation = page.locator('[formcontrolname="occupation"]');
+    await occupation.highlight();
+    await occupation.selectOption('Engineer');
+
+    const gender = page.locator('[formcontrolname="gender"]').nth(0);
+    await gender.highlight();
+    await gender.click();
+
+    const passwordField = page.locator('#userPassword');
+    await passwordField.highlight();
+    await passwordField.fill(password);
+
+    const confirmPassword = page.locator('#confirmPassword');
+    await confirmPassword.highlight();
+    await confirmPassword.fill(password);
+
+    const terms = page.locator('[formcontrolname="required"]');
+    await terms.highlight();
+    await terms.click();
+
+    const submitRegister = page.locator('input[type="submit"][value="Register"]');
+    await submitRegister.highlight();
+    await submitRegister.click();
+
+    const successMessage = page.getByText('Account Created Successfully');
+    await successMessage.highlight();
+    await expect(successMessage).toBeVisible();
 
     // Login
-    await page.locator("text=Login").click();
-    await page.locator('#userEmail').fill(uniqueEmail);
-    await page.locator('#userPassword').fill(password);
-    await page.locator('#login').click();
+    const loginLink = page.locator('text=Login');
+    await loginLink.highlight();
+    await loginLink.click();
+
+    const loginEmail = page.locator('#userEmail');
+    await loginEmail.highlight();
+    await loginEmail.fill(uniqueEmail);
+
+    const loginPassword = page.locator('#userPassword');
+    await loginPassword.highlight();
+    await loginPassword.fill(password);
+
+    const loginButton = page.locator('#login');
+    await loginButton.highlight();
+    await loginButton.click();
 
     // Add first product to cart
     const card = page.locator('.card-body').first();
 
+    await card.highlight();
     console.log(await card.textContent());
 
-    await card.locator("text=Add To Cart").click();
+    const addToCart = card.locator('text=Add To Cart');
+    await addToCart.highlight();
+    await addToCart.click();
 
     // Verify product added notification
-    const toast = page.locator("#toast-container");
+    const toast = page.locator('#toast-container');
 
-    await expect(toast).toContainText("Product Added To Cart");
+    await toast.highlight();
+    await expect(toast).toContainText('Product Added To Cart');
     console.log(await toast.textContent());
 
     // Navigate to cart and checkout
-    await page.locator("button[routerlink='/dashboard/cart']").click();
-    await page.locator("button:has-text('Checkout')").click();
+    const cartButton = page.locator("button[routerlink='/dashboard/cart']");
+    await cartButton.highlight();
+    await cartButton.click();
+
+    const checkoutButton = page.locator("button:has-text('Checkout')");
+    await checkoutButton.highlight();
+    await checkoutButton.click();
 
     // Payment details
-    await page.locator('input[value="4542 9931 9292 2293"]').fill('4242424242424242');
+    const cardNumber = page.locator('input[value="4542 9931 9292 2293"]');
+    await cardNumber.highlight();
+    await cardNumber.fill('4242424242424242');
 
-    await page.locator('.field.small')
+    const cvv = page.locator('.field.small')
         .filter({ hasText: 'CVV Code' })
-        .locator('input')
-        .fill('123');
+        .locator('input');
 
-    await page.locator('.field')
+    await cvv.highlight();
+    await cvv.fill('123');
+
+    const cardName = page.locator('.field')
         .filter({ hasText: 'Name on Card' })
-        .locator('input')
-        .fill('Muhammad Qasim');
+        .locator('input');
+
+    await cardName.highlight();
+    await cardName.fill('Muhammad Qasim');
 
     // Verify shipping information validation
-    await page.locator(".actions .action__submit").click();
+    const placeOrder = page.locator('.actions .action__submit');
 
-    const toast2 = page.locator("#toast-container");
+    await placeOrder.highlight();
+    await placeOrder.click();
 
-    await expect(toast2).toContainText("Please Enter Full Shipping Information");
+    const toast2 = page.locator('#toast-container');
+
+    await toast2.highlight();
+    await expect(toast2).toContainText('Please Enter Full Shipping Information');
     console.log(await toast2.textContent());
 
     // Select country using sequential typing
     const country = page.locator("input[placeholder='Select Country']");
 
+    await country.highlight();
     await country.pressSequentially('pakistan', { delay: 100 });
 
-    const results = page.locator(".ta-results");
-
+    const results = page.locator('.ta-results');
+    await results.highlight();
     await expect(results).toBeVisible();
 
     const pakistanOption = results.getByRole('button', {
         name: 'Pakistan',
     });
 
+    await pakistanOption.highlight();
     await expect(pakistanOption).toBeVisible();
     await pakistanOption.click();
 
-    // await expect(country).toHaveValue('Pakistan');
-
     // Place order
-    await page.locator(".actions .action__submit").click();
-
+    await placeOrder.highlight();
+    await placeOrder.click();
 });
