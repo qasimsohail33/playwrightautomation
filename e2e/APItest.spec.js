@@ -18,8 +18,16 @@ test.beforeAll(async () => {
 
 test('Verify order creation via API', async ({page}) => {
 
+await page.addInitScript(value => {
+    window.localStorage.setItem('token', value);
+}, token);
     await page.goto("https://rahulshettyacademy.com/client");
+    await page.pause();
+
+
 
     // console.log('Token:', token);
     // console.log('Order Response:', response); 
+
+
   })
