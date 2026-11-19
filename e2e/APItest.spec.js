@@ -1,5 +1,6 @@
 const {test, expect, request} = require('@playwright/test');
 const APIutils = require('./utils/APIutils');
+const fakePayLoadOrders = { data: [], message: "No Orders" };
 
 let token;
 let response;
@@ -23,6 +24,15 @@ await page.addInitScript(value => {
 }, token);
     await page.goto("https://rahulshettyacademy.com/client");
     await page.pause();
+    await page.route('https://rahulshettyacademy.com/api/ecom/order/get-orders-for-customer/*',
+        async route => {
+            const response = await page.request.fetch(route.request());
+            let body = JSON.stringify(fakePayLoadOrders);
+            await route.fulfill({response, body })
+        });
+
+        await page.getByRole('button', { name: 'ORDERS' }).click();
+
 
 
 
